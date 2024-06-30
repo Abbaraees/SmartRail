@@ -14,6 +14,9 @@
       ],
       "@/components/*": [
         "./src/components/*"
+      ],
+      "@/assets/*": [
+        "./assets/*"
       ]
     }
   },
