@@ -7,6 +7,7 @@ import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import Colors from '@/src/constants/Colors';
 import dayjs from 'dayjs';
 import SelectField from '@/src/components/SelectField';
+import { Redirect } from 'expo-router';
 export default function TabOneScreen() {
   const [selectedTrip, setSelectedTrip] = useState('one-way')
   const [origin, setOrigin] = useState("")
@@ -51,6 +52,8 @@ export default function TabOneScreen() {
     mode: 'date',
     is24Hour: true,
   });
+
+  return <Redirect href={'/auth'} />
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollStyle}>
