@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Pressable, ProgressBarAndroidBase, TextInput } from 'react-native'
+import { View, Text, StyleSheet, Pressable, ProgressBarAndroidBase, TextInput, Alert, KeyboardAvoidingView } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Colors from '@/src/constants/Colors'
@@ -7,11 +7,27 @@ import { router } from 'expo-router'
 import InputField from '@/src/components/InputField'
 import Checkbox from 'expo-checkbox'  
 import Button from '@/src/components/Button'
+import { supabase } from '@/src/lib/supabase'
 
 const SignUpScreen = () => {
   const [checked, setChecked] = useState(false)
-  return (
-    <SafeAreaView style={styles.container}>
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+
+  const onSubmit = async () => {
+    router.push('/auth/complete-profile')
+    // if (!checked) {
+    //   return Alert.alert("Signup Failed", "You have to accept our Terms and Policies")
+    // }
+    // else {
+    //   const {data, error} = await supabase.auth.signUp({email, password})
+    //   if (error) {
+    //     return Alert.alert('Auth Failed', error.message)
+    //   }
+    // }
+  }
+  return ( 
+    <SafeAreaView style={styles.container}>      
       <View style={styles.header}>
         <Pressable onPress={() => router.back()}>
           <AntDesign name='arrowleft' color='white' size={24} />
@@ -23,8 +39,22 @@ const SignUpScreen = () => {
       <View style={styles.body}>
         <Text style={styles.welcomeText}>Hello there 👋</Text>
         <Text style={styles.note}>Please enter your email & password to create an account.</Text>
-        <InputField label='Email' placeholder='Enter your email address' icon='mail'/>
-        <InputField label='Password' placeholder='Enter your password' icon='eye-off'/>
+        <InputField 
+          value={email}
+          onValueChange={setEmail}
+          label='Email'
+          placeholder='Enter your email address' 
+          icon='mail'
+          secureTextEntry={false}
+        />
+        <InputField 
+          value={password}
+          onValueChange={setPassword}
+          label='Password' 
+          placeholder='Enter your password' 
+          icon='eye-off'
+          secureTextEntry
+        />
         <Pressable style={styles.checkboxContainer} onPress={() => setChecked(!checked)}>
           <Checkbox 
             style={styles.checkbox}
@@ -40,13 +70,13 @@ const SignUpScreen = () => {
               <Text style={styles.siginText}>Sign in</Text>
             </Pressable>
          </View>
-      <Button title='Sign up' onPress={() => {}} secondary={false} />
+      <Button title='Sign up' onPress={onSubmit} secondary={false} />
       </View>
     </SafeAreaView>
   )
 }
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'flex-start',
@@ -58,7 +88,10 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.tint,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 10
+    padding: 10,
+    position: 'static',
+    top: 0,
+    left: 0
   },
   progressContainer: {
     height: 10,
@@ -68,13 +101,14 @@ const styles = StyleSheet.create({
     borderRadius: 100
   },
   progressIndicator: {
-    width: '25%',
+    width: '33.3%',
     height: 10,
     backgroundColor: 'white',
     borderRadius: 100
   },
   body: {
-    padding: 10
+    padding: 10,
+    // flex: 1
   },
   welcomeText: {
     fontSize: 30

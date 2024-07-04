@@ -8,6 +8,8 @@ import Colors from '@/src/constants/Colors';
 import dayjs from 'dayjs';
 import SelectField from '@/src/components/SelectField';
 import { Redirect } from 'expo-router';
+
+
 export default function TabOneScreen() {
   const [selectedTrip, setSelectedTrip] = useState('one-way')
   const [origin, setOrigin] = useState("")
