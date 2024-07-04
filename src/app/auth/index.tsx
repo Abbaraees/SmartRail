@@ -2,13 +2,10 @@ import Button from '@/src/components/Button'
 import Colors from '@/src/constants/Colors'
 import { useNavigation, router } from 'expo-router'
 import { View, Text, StyleSheet, Image, Pressable, TouchableOpacity } from 'react-native'
-import PagerView from 'react-native-pager-view'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 
 const WalkthroughScreen = () => {
-  const navigation = useNavigation()
-
   return (
     <SafeAreaView style={styles.container}>
       <Image source={require('@/assets/images/logo.png')} style={styles.logo}/>

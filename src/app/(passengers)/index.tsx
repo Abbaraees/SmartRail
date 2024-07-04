@@ -1,19 +1,20 @@
 import { ImageBackground, StyleSheet, Image, StatusBar, Pressable, ScrollView } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
 import { Text, View } from '@/components/Themed';
-import { AntDesign, Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { useEffect, useState } from 'react';
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import Colors from '@/src/constants/Colors';
 import dayjs from 'dayjs';
 import SelectField from '@/src/components/SelectField';
-import { Redirect } from 'expo-router';
+import { supabase } from '@/src/lib/supabase';
+import { useAuth } from '@/src/providers/AuthProvider';
 
 
 export default function TabOneScreen() {
   const [selectedTrip, setSelectedTrip] = useState('one-way')
   const [origin, setOrigin] = useState("")
   const [destination, setDestination] = useState("")
+  const { profile } = useAuth()
 
   const data = [
     {label: 'Katsina', value: 'katsina'},
@@ -42,6 +43,8 @@ export default function TabOneScreen() {
   ]
   const [selectedPassengers, setSeclectedPassengers] = useState("1 Adult")
   const [date, setDate] = useState(new Date());
+  const { data: {publicUrl} } = supabase.storage.from('avatars').getPublicUrl('avatar.png')
+
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate;
@@ -55,18 +58,16 @@ export default function TabOneScreen() {
     is24Hour: true,
   });
 
-  return <Redirect href={'/auth'} />
-
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollStyle}>
       {/* Header */}
       <View style={styles.header}>
         <ImageBackground source={require('@/assets/images/header-background.png')} style={styles.image} />
         <View style={styles.userInfo}>
-          <Image source={require('@/assets/images/avatar.png')} />
+          <Image source={{uri: publicUrl}} style={{ width: 50, height: 50 }}/>
           <View style={styles.userInfoText}>
             <Text style={styles.userInfoGreeting}>Good Morning 👋</Text>
-            <Text style={styles.userInfoName}>Muhammad Lawal</Text>
+            <Text style={styles.userInfoName}>{profile.full_name}</Text>
           </View>
           <Ionicons name='notifications' size={20} color={'white'} style={styles.notificationIcon}/>
         </View>

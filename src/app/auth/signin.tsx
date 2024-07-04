@@ -9,36 +9,31 @@ import Checkbox from 'expo-checkbox'
 import Button from '@/src/components/Button'
 import { supabase } from '@/src/lib/supabase'
 
-const SignUpScreen = () => {
+const SigninScreen = () => {
   const [checked, setChecked] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
   const onSubmit = async () => {
-    router.push('/auth/complete-profile')
-    // if (!checked) {
-    //   return Alert.alert("Signup Failed", "You have to accept our Terms and Policies")
-    // }
-    // else {
-    //   const {data, error} = await supabase.auth.signUp({email, password})
-    //   if (error) {
-    //     return Alert.alert('Auth Failed', error.message)
-    //   }
-    // }
+    const {data, error} = await supabase.auth.signInWithPassword({email, password})
+    if (error) {
+      return Alert.alert("Login failed", error.message)
+    } 
+    else {
+      router.push('/(passengers)')
+    }
   }
+
   return ( 
     <SafeAreaView style={styles.container}>      
       <View style={styles.header}>
         <Pressable onPress={() => router.back()}>
           <AntDesign name='arrowleft' color='white' size={24} />
         </Pressable>
-        <View style={styles.progressContainer}>
-          <View style={styles.progressIndicator}></View>
-        </View>
       </View>
       <View style={styles.body}>
-        <Text style={styles.welcomeText}>Hello there 👋</Text>
-        <Text style={styles.note}>Please enter your email & password to create an account.</Text>
+        <Text style={styles.welcomeText}>Welcome back 👋</Text>
+        <Text style={styles.note}>Please enter your email & password to sign in.</Text>
         <InputField 
           value={email}
           onValueChange={setEmail}
@@ -62,15 +57,15 @@ const SignUpScreen = () => {
             onValueChange={setChecked}
             color={Colors.light.tint}
           />
-          <Text>I agree to Smart Rail Terms, & Privacy Policy.</Text>
+          <Text>Remember me</Text>
         </Pressable>
         <View style={styles.haveAcctContainer}>
-            <Text>Already have an account?</Text> 
-            <Pressable  onPress={() => router.push('/auth/signin')}>
-              <Text style={styles.siginText}>Sign in</Text>
+            <Text>Don&apos;t have an account?</Text> 
+            <Pressable onPress={() => router.push('/auth/signup')}>
+              <Text style={styles.siginText}>Sign up</Text>
             </Pressable>
          </View>
-      <Button title='Sign up' onPress={onSubmit} secondary={false} />
+      <Button title='Sign in' onPress={onSubmit} secondary={false} />
       </View>
     </SafeAreaView>
   )
@@ -86,25 +81,12 @@ export const styles = StyleSheet.create({
     height: 80,
     flexDirection: 'row',
     backgroundColor: Colors.light.tint,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     padding: 10,
     position: 'static',
     top: 0,
     left: 0
-  },
-  progressContainer: {
-    height: 10,
-    width: '80%',
-    backgroundColor: '#658EFF',
-    marginLeft: 40,
-    borderRadius: 100
-  },
-  progressIndicator: {
-    width: '33.3%',
-    height: 10,
-    backgroundColor: 'white',
-    borderRadius: 100
   },
   body: {
     padding: 10,
@@ -141,4 +123,4 @@ export const styles = StyleSheet.create({
   }
  
 })
-export default SignUpScreen
+export default SigninScreen

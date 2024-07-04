@@ -16,7 +16,7 @@ const CreatePinScreen = () => {
     }
     else {
       Alert.alert("Success", "Profile Created successfully, proceed to login", 
-        [{'text': 'Continue', onPress: () => router.navigate('/auth')}]
+        [{'text': 'Continue', onPress: () => router.navigate('/auth/signin')}]
       )
     }
   }

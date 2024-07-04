@@ -47,7 +47,8 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
     })
 
     fetchSession()
-  })
+  }, [])
+
   return (
     <AuthContext.Provider value={{session, profile, isLoading, isAdmin: profile?.role === 'ADMIN'}}>
       {children}
