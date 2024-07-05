@@ -1,4 +1,4 @@
-import { ImageBackground, StyleSheet, Image, StatusBar, Pressable, ScrollView } from 'react-native';
+import { ImageBackground, StyleSheet, Image, StatusBar, Pressable, ScrollView, BackHandler, Alert } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
@@ -14,8 +14,31 @@ export default function TabOneScreen() {
   const [selectedTrip, setSelectedTrip] = useState('one-way')
   const [origin, setOrigin] = useState("")
   const [destination, setDestination] = useState("")
+  const [selectedClass, setSelectedClass] = useState('All Class')
+  
   const { profile } = useAuth()
 
+  useEffect(() => {
+    const backAction = () => {
+      Alert.alert(
+        'Hold on!',
+        'Are you sure you want to Exit?',
+        [
+          { text: 'Cancel', onPress: () => null, style: 'cancel' },
+          { text: 'YES', onPress: () => BackHandler.exitApp() },
+        ]
+      );
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, []);
+  
   const data = [
     {label: 'Katsina', value: 'katsina'},
     {label: 'Kano', value: 'kano'},
@@ -31,7 +54,6 @@ export default function TabOneScreen() {
     {'label': 'Business', value: 'Business'},
     {'label': 'Economy', value: 'Economy'},
   ]
-  const [selectedClass, setSelectedClass] = useState('All Class')
 
   const passengers = [
     {label: "1 Adult", value: "1 Adult"}, 
@@ -41,10 +63,12 @@ export default function TabOneScreen() {
     {label: "5 Adults", value: "5 Adults"},
     {label: "5+ Adults", value: "5+ Adults"}
   ]
+
   const [selectedPassengers, setSeclectedPassengers] = useState("1 Adult")
   const [date, setDate] = useState(new Date());
-  const { data: {publicUrl} } = supabase.storage.from('avatars').getPublicUrl('avatar.png')
-
+  const { data: {publicUrl} } = supabase.storage
+    .from('avatars')
+    .getPublicUrl(profile.avatar_url ? profile.avatar_url : 'avatar.url')
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate;
@@ -64,7 +88,7 @@ export default function TabOneScreen() {
       <View style={styles.header}>
         <ImageBackground source={require('@/assets/images/header-background.png')} style={styles.image} />
         <View style={styles.userInfo}>
-          <Image source={{uri: publicUrl}} style={{ width: 50, height: 50 }}/>
+          <Image source={{uri: publicUrl}} style={{ width: 50, height: 50, borderRadius: 50 }}/>
           <View style={styles.userInfoText}>
             <Text style={styles.userInfoGreeting}>Good Morning 👋</Text>
             <Text style={styles.userInfoName}>{profile.full_name}</Text>
@@ -245,5 +269,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold'
   }
-
 });

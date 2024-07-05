@@ -1,20 +1,24 @@
 import { StyleSheet, Text, TouchableOpacity } from 'react-native'
-import React from 'react'
+import React, { FunctionComponent, FunctionComponentElement } from 'react'
 import Colors from '../constants/Colors'
 
-type ButtonPropTypes = {
+interface ButtonPropTypes {
   title: string,
   onPress: () => void,
-  secondary: boolean
+  secondary?: boolean,
+  disabled?: boolean
 }
 
-const Button = ({ title, onPress, secondary = false }: ButtonPropTypes) => {
+
+
+const Button = ({ title, onPress, secondary, disabled }: ButtonPropTypes) => {
   return (
-    <TouchableOpacity style={[styles.button, secondary && {backgroundColor: '#E9EFFF'}]} onPress={onPress}>
+    <TouchableOpacity style={[styles.button, secondary && {backgroundColor: '#E9EFFF'}]} onPress={onPress} disabled={disabled}>
       <Text style={[styles.buttonText, secondary && {color: Colors.light.tint}]}>{title}</Text>
     </TouchableOpacity>
   )
 }
+
 
 const styles = StyleSheet.create({
   button: {

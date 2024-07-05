@@ -2,27 +2,43 @@ import { Session } from '@supabase/supabase-js'
 import { PropsWithChildren, createContext, useContext, useEffect, useState } from 'react'
 import { View, Text } from 'react-native'
 import { supabase } from '../lib/supabase'
+import { Tables } from '../types'
 
 
 type AuthContextType = {
   session: Session | null,
-  profile: any,
+  profile: Tables<'profiles'>,
   isLoading: boolean,
-  isAdmin: boolean
+  isAdmin: boolean,
+  setProfile: (profile: any) => void
 }
 
+const defaultProfile = {
+  avatar_url: '',
+  date_of_birth: '',
+  encrypted_pin: '',
+  full_name: '',
+  id: '',
+  national_id: '',
+  phone_number: '',
+  role: '',
+  updated_at: '',
+  website: '',
+}
 
 const AuthContext = createContext<AuthContextType>({
   session: null,
-  profile: null,
+  profile: defaultProfile,
   isLoading: true,
-  isAdmin: false
+  isAdmin: false,
+  setProfile: (profile: Tables<'profiles'>) => {}
 })
+
 
 
 const AuthProvider = ({ children }: PropsWithChildren) => {
   const [session, setSession] = useState<Session | null>(null)
-  const [profile, setProfile] = useState<any>(null)
+  const [profile, setProfile] = useState<Tables<'profiles'>>(defaultProfile)
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
   useEffect(() => {
@@ -36,7 +52,8 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
           .select('*')
           .eq('id', session?.user.id)
           .single()
-          setProfile(data || null)
+
+          setProfile(data || defaultProfile)
       }
 
       setIsLoading(false)
@@ -50,7 +67,7 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
   }, [])
 
   return (
-    <AuthContext.Provider value={{session, profile, isLoading, isAdmin: profile?.role === 'ADMIN'}}>
+    <AuthContext.Provider value={{session, profile, isLoading, isAdmin: profile?.role === 'ADMIN', setProfile}}>
       {children}
     </AuthContext.Provider>
   )

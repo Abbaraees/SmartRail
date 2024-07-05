@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Pressable, ProgressBarAndroidBase, TextInput, Alert, KeyboardAvoidingView } from 'react-native'
+import { View, Text, StyleSheet, Pressable, Alert } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Colors from '@/src/constants/Colors'
@@ -8,6 +8,7 @@ import InputField from '@/src/components/InputField'
 import Checkbox from 'expo-checkbox'  
 import Button from '@/src/components/Button'
 import { supabase } from '@/src/lib/supabase'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 const SigninScreen = () => {
   const [checked, setChecked] = useState(false)
@@ -20,61 +21,62 @@ const SigninScreen = () => {
       return Alert.alert("Login failed", error.message)
     } 
     else {
-      router.push('/(passengers)')
+      router.replace('/(passengers)')
     }
   }
 
   return ( 
-    <SafeAreaView style={styles.container}>      
-      <View style={styles.header}>
-        <Pressable onPress={() => router.back()}>
-          <AntDesign name='arrowleft' color='white' size={24} />
-        </Pressable>
-      </View>
-      <View style={styles.body}>
-        <Text style={styles.welcomeText}>Welcome back 👋</Text>
-        <Text style={styles.note}>Please enter your email & password to sign in.</Text>
-        <InputField 
-          value={email}
-          onValueChange={setEmail}
-          label='Email'
-          placeholder='Enter your email address' 
-          icon='mail'
-          secureTextEntry={false}
-        />
-        <InputField 
-          value={password}
-          onValueChange={setPassword}
-          label='Password' 
-          placeholder='Enter your password' 
-          icon='eye-off'
-          secureTextEntry
-        />
-        <Pressable style={styles.checkboxContainer} onPress={() => setChecked(!checked)}>
-          <Checkbox 
-            style={styles.checkbox}
-            value={checked}
-            onValueChange={setChecked}
-            color={Colors.light.tint}
+    <SafeAreaView style={styles.container}>
+      <KeyboardAwareScrollView contentContainerStyle={{justifyContent: 'flex-start'}}>
+        <View style={styles.header}>
+          <Pressable onPress={() => router.back()}>
+            <AntDesign name='arrowleft' color='white' size={24} />
+          </Pressable>
+        </View>
+        <View style={styles.body}>
+          <Text style={styles.welcomeText}>Welcome back 👋</Text>
+          <Text style={styles.note}>Please enter your email & password to sign in.</Text>
+          <InputField 
+            value={email}
+            onValueChange={setEmail}
+            label='Email'
+            placeholder='Enter your email address' 
+            icon='mail'
+            secureTextEntry={false}
           />
-          <Text>Remember me</Text>
-        </Pressable>
-        <View style={styles.haveAcctContainer}>
-            <Text>Don&apos;t have an account?</Text> 
-            <Pressable onPress={() => router.push('/auth/signup')}>
-              <Text style={styles.siginText}>Sign up</Text>
-            </Pressable>
-         </View>
-      <Button title='Sign in' onPress={onSubmit} secondary={false} />
-      </View>
+          <InputField 
+            value={password}
+            onValueChange={setPassword}
+            label='Password' 
+            placeholder='Enter your password' 
+            icon='eye-off'
+            secureTextEntry
+          />
+          <Pressable style={styles.checkboxContainer} onPress={() => setChecked(!checked)}>
+            <Checkbox 
+              style={styles.checkbox}
+              value={checked}
+              onValueChange={setChecked}
+              color={Colors.light.tint}
+            />
+            <Text>Remember me</Text>
+          </Pressable>
+          <View style={styles.haveAcctContainer}>
+              <Text>Don&apos;t have an account?</Text> 
+              <Pressable onPress={() => router.push('/auth/signup')}>
+                <Text style={styles.siginText}>Sign up</Text>
+              </Pressable>
+          </View>
+        <Button title='Sign in' onPress={onSubmit} secondary={false} />
+        </View>
+      </KeyboardAwareScrollView>      
     </SafeAreaView>
   )
 }
 
 export const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'flex-start',
+    flex: 1
   },
   header: {
     width: '100%',

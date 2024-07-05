@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Pressable, ProgressBarAndroidBase, TextInput, Alert, KeyboardAvoidingView } from 'react-native'
+import { View, Text, StyleSheet, Pressable, Alert } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Colors from '@/src/constants/Colors'
@@ -8,6 +8,7 @@ import InputField from '@/src/components/InputField'
 import Checkbox from 'expo-checkbox'  
 import Button from '@/src/components/Button'
 import { supabase } from '@/src/lib/supabase'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 const SignUpScreen = () => {
   const [checked, setChecked] = useState(false)
@@ -15,63 +16,70 @@ const SignUpScreen = () => {
   const [password, setPassword] = useState('')
 
   const onSubmit = async () => {
-    router.push('/auth/complete-profile')
-    // if (!checked) {
-    //   return Alert.alert("Signup Failed", "You have to accept our Terms and Policies")
-    // }
-    // else {
-    //   const {data, error} = await supabase.auth.signUp({email, password})
-    //   if (error) {
-    //     return Alert.alert('Auth Failed', error.message)
-    //   }
-    // }
+    if (!checked) {
+      return Alert.alert("Signup Failed", "You have to accept our Terms and Policies")
+    }
+    else {
+      const {data, error} = await supabase.auth.signUp({email, password})
+      if (!error) {
+        const {error} = await supabase.auth.signInWithPassword({email, password})
+        if (!error)
+          router.replace('/auth/complete-profile')
+      }
+      else {
+        return Alert.alert('Auth Failed', error.message)
+
+      }
+    }
   }
   return ( 
-    <SafeAreaView style={styles.container}>      
-      <View style={styles.header}>
-        <Pressable onPress={() => router.back()}>
-          <AntDesign name='arrowleft' color='white' size={24} />
-        </Pressable>
-        <View style={styles.progressContainer}>
-          <View style={styles.progressIndicator}></View>
+    <SafeAreaView style={styles.container} > 
+      <KeyboardAwareScrollView contentContainerStyle={{ justifyContent: 'center'}}>
+        <View style={styles.header}>
+          <Pressable onPress={() => router.back()}>
+            <AntDesign name='arrowleft' color='white' size={24} />
+          </Pressable>
+          <View style={styles.progressContainer}>
+            <View style={styles.progressIndicator}></View>
+          </View>
         </View>
-      </View>
-      <View style={styles.body}>
-        <Text style={styles.welcomeText}>Hello there 👋</Text>
-        <Text style={styles.note}>Please enter your email & password to create an account.</Text>
-        <InputField 
-          value={email}
-          onValueChange={setEmail}
-          label='Email'
-          placeholder='Enter your email address' 
-          icon='mail'
-          secureTextEntry={false}
-        />
-        <InputField 
-          value={password}
-          onValueChange={setPassword}
-          label='Password' 
-          placeholder='Enter your password' 
-          icon='eye-off'
-          secureTextEntry
-        />
-        <Pressable style={styles.checkboxContainer} onPress={() => setChecked(!checked)}>
-          <Checkbox 
-            style={styles.checkbox}
-            value={checked}
-            onValueChange={setChecked}
-            color={Colors.light.tint}
+        <View style={styles.body}>
+          <Text style={styles.welcomeText}>Hello there 👋</Text>
+          <Text style={styles.note}>Please enter your email & password to create an account.</Text>
+          <InputField 
+            value={email}
+            onValueChange={setEmail}
+            label='Email'
+            placeholder='Enter your email address' 
+            icon='mail'
+            secureTextEntry={false}
           />
-          <Text>I agree to Smart Rail Terms, & Privacy Policy.</Text>
-        </Pressable>
-        <View style={styles.haveAcctContainer}>
-            <Text>Already have an account?</Text> 
-            <Pressable  onPress={() => router.push('/auth/signin')}>
-              <Text style={styles.siginText}>Sign in</Text>
-            </Pressable>
-         </View>
-      <Button title='Sign up' onPress={onSubmit} secondary={false} />
-      </View>
+          <InputField 
+            value={password}
+            onValueChange={setPassword}
+            label='Password' 
+            placeholder='Enter your password' 
+            icon='eye-off'
+            secureTextEntry
+          />
+          <Pressable style={styles.checkboxContainer} onPress={() => setChecked(!checked)}>
+            <Checkbox 
+              style={styles.checkbox}
+              value={checked}
+              onValueChange={setChecked}
+              color={Colors.light.tint}
+            />
+            <Text>I agree to Smart Rail Terms, & Privacy Policy.</Text>
+          </Pressable>
+          <View style={styles.haveAcctContainer}>
+              <Text>Already have an account?</Text> 
+              <Pressable  onPress={() => router.push('/auth/signin')}>
+                <Text style={styles.siginText}>Sign in</Text>
+              </Pressable>
+          </View>
+        <Button title='Sign up' onPress={onSubmit} secondary={false}/>
+        </View>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   )
 }
@@ -86,7 +94,6 @@ export const styles = StyleSheet.create({
     height: 80,
     flexDirection: 'row',
     backgroundColor: Colors.light.tint,
-    justifyContent: 'center',
     alignItems: 'center',
     padding: 10,
     position: 'static',

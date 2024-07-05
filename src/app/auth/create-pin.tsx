@@ -7,19 +7,46 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import OTPTextView from 'react-native-otp-textinput'
 import Colors from '@/src/constants/Colors'
 import Button from '@/src/components/Button'
+import * as Crypto from "expo-crypto"
+import { supabase } from '@/src/lib/supabase'
+import { useAuth } from '@/src/providers/AuthProvider'
 
 const CreatePinScreen = () => {
+  const { session, setProfile } = useAuth()
   const [pin, setPin] = useState<string>('')
-  const onConfirm = () => {
+  const onConfirm = async () => {
     if (pin.length < 4) {
       Alert.alert("Failed", "Pin most be 4 digits")
     }
-    else {
-      Alert.alert("Success", "Profile Created successfully, proceed to login", 
-        [{'text': 'Continue', onPress: () => router.navigate('/auth/signin')}]
-      )
+    else if (session) {
+      const digest = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA512, pin)
+      const {data, error} = await supabase
+        .from('profiles')
+        .update({encrypted_pin: digest})
+        .eq('id', session?.user.id)
+        .single()
+
+
+
+      if (!error) {
+        const { data } = await  supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session?.user.id)
+          .single()
+        setProfile(data)
+        
+        return Alert.alert("Success", "Profile Created successfully, proceed to Dashboard", 
+          [{'text': 'Continue', onPress: () => {router.replace('/(passengers)')}}]
+        )
+      }
+
+      else {
+        return Alert.alert("Failed", "An error occured, please try again later!!")
+      }
     }
   }
+
   return (
     <SafeAreaView>
       <View style={styles.header}>
