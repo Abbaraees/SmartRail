@@ -8,6 +8,7 @@ import dayjs from 'dayjs';
 import SelectField from '@/src/components/SelectField';
 import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/providers/AuthProvider';
+import { router, useSegments } from 'expo-router';
 
 
 export default function TabOneScreen() {
@@ -18,26 +19,28 @@ export default function TabOneScreen() {
   
   const { profile } = useAuth()
 
-  useEffect(() => {
-    const backAction = () => {
-      Alert.alert(
-        'Hold on!',
-        'Are you sure you want to Exit?',
-        [
-          { text: 'Cancel', onPress: () => null, style: 'cancel' },
-          { text: 'YES', onPress: () => BackHandler.exitApp() },
-        ]
-      );
-      return true;
-    };
+  // const segments = useSegments()
+  // useEffect(() => {
+  //   console.log(segments)
+  //   const backAction = () => {
+  //     Alert.alert(
+  //       'Hold on!',
+  //       'Are you sure you want to Exit?',
+  //       [
+  //         { text: 'Cancel', onPress: () => null, style: 'cancel' },
+  //         { text: 'YES', onPress: () => BackHandler.exitApp() },
+  //       ]
+  //     );
+  //     return true;
+  //   };
 
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction
-    );
+  //   const backHandler = BackHandler.addEventListener(
+  //     'hardwareBackPress',
+  //     backAction
+  //   );
 
-    return () => backHandler.remove();
-  }, []);
+  //   return () => backHandler.remove();
+  // }, []);
   
   const data = [
     {label: 'Katsina', value: 'katsina'},
@@ -164,6 +167,7 @@ export default function TabOneScreen() {
               alignItems: 'center',
               borderRadius: 10
             }}
+            onPress={() => router.navigate('/search')}
           >
             <Text style={{
               color: 'white',

@@ -1,31 +1,61 @@
-import { StyleSheet } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet } from 'react-native';
 
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/src/lib/supabase';
+import { Tables } from '@/src/types';
+import ScheduleCard from '@/src/components/ScheduleCard';
 
 export default function TabTwoScreen() {
+  const [schedules, setSchedules] = useState<Tables<'schedules'>[] | null>()
+
+  useEffect(() => {
+    const fetchSchedules = async () => {
+      
+    let { data: schedules, error } = await supabase
+    .from('schedules')
+    .select('*')
+        
+        
+        
+      console.log(error)
+      if (!error) {
+        setSchedules(schedules)
+      }
+      else {
+        console.log(schedules)
+        setSchedules(null)
+      }
+    }
+    fetchSchedules()
+  }, [])
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Tab Two</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/two.tsx" />
-    </View>
+    <SafeAreaView style={styles.container}>
+       { schedules === undefined 
+        ? <ActivityIndicator />
+        : schedules === null
+        ? <Text>Failed to fetch schedules</Text>
+        : 
+        <>
+          <FlatList 
+          data={schedules}
+          renderItem={({item}) => <ScheduleCard {...item}/>}
+          contentContainerStyle={{gap: 18, paddingBottom: 10}}
+        />
+        </>
+        }
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
+    justifyContent: 'flex-start',
+    width: '100%',
+    padding: 15
   },
 });
