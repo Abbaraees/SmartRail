@@ -1,9 +1,10 @@
-import { StyleSheet, Text, View, Image } from 'react-native'
+import { StyleSheet, Text, View, Image, Pressable } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { Tables } from '../types'
 import dayjs from 'dayjs'
 import moment from 'moment'
+import { router } from 'expo-router'
 
 
 
@@ -36,34 +37,36 @@ const ScheduleCard = ({id, origin, destination, departure_time, arrival_time, st
   }, [train_id])
 
   return (
-    <View style={styles.container}>
-      <View style={styles.firstRow}>
-        <View>
-          <Text style={styles.trainName}>{train?.name}</Text>
-          <Text style={styles.trainClass}>{train?.class}</Text>
+    <Pressable onPress={() => router.navigate(`/(passengers)/booking/${id}`)}>
+      <View style={styles.container}>
+        <View style={styles.firstRow}>
+          <View>
+            <Text style={styles.trainName}>{train?.name}</Text>
+            <Text style={styles.trainClass}>{train?.class}</Text>
+          </View>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <Text style={styles.status}>{status}</Text>
+            <Text style={styles.price}>${price}</Text>
+          </View>
         </View>
-        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-          <Text style={styles.status}>{status}</Text>
-          <Text style={styles.price}>${price}</Text>
+        <View style={styles.secondRow}>
+          <View>
+            <Text style={styles.stations}>{origin}</Text>
+            <Text style={styles.time}>{dayjs(departure_time).format('HH:mm a')}</Text>
+            <Text style={styles.date}>{dayjs(departure_time).format('DD MMMM YYYY')}</Text>
+          </View>
+          <View style={{alignItems: 'center'}}>
+            <Image source={require('@/assets/images/one-way-icon.png')} />
+            <Text style={styles.duration}>{formattedResult}</Text>
+          </View>
+          <View style={{alignItems:'flex-end'}}>
+            <Text style={styles.stations}>{destination}</Text>
+            <Text style={styles.time}>{dayjs(arrival_time).format('HH:mm a')}</Text>
+            <Text style={styles.date}>{dayjs(arrival_time).format('DD MMMM YYYY')}</Text>
+          </View>
         </View>
       </View>
-      <View style={styles.secondRow}>
-        <View>
-          <Text style={styles.stations}>{origin}</Text>
-          <Text style={styles.time}>{dayjs(departure_time).format('HH:mm a')}</Text>
-          <Text style={styles.date}>{dayjs(departure_time).format('DD MMMM YYYY')}</Text>
-        </View>
-        <View style={{alignItems: 'center'}}>
-          <Image source={require('@/assets/images/one-way-icon.png')} />
-          <Text style={styles.duration}>{formattedResult}</Text>
-        </View>
-        <View style={{alignItems:'flex-end'}}>
-          <Text style={styles.stations}>{destination}</Text>
-          <Text style={styles.time}>{dayjs(arrival_time).format('HH:mm a')}</Text>
-          <Text style={styles.date}>{dayjs(arrival_time).format('DD MMMM YYYY')}</Text>
-        </View>
-      </View>
-    </View>
+    </Pressable>
   )
 }
 
