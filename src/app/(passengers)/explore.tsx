@@ -18,18 +18,14 @@ export default function TabTwoScreen() {
     .from('schedules')
     .select('*')
         
-        
-        
-      console.log(error)
-      if (!error) {
-        setSchedules(schedules)
-      }
-      else {
-        console.log(schedules)
-        setSchedules(null)
-      }
+    if (!error) {
+      setSchedules(schedules)
     }
-    fetchSchedules()
+    else {
+      setSchedules(null)
+    }
+  }
+  fetchSchedules()
   }, [])
 
   return (

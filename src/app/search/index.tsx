@@ -19,16 +19,13 @@ const SearchScreen = () => {
     .select('*')
         
         
-        
-      console.log(error)
-      if (!error) {
-        setSchedules(schedules)
-      }
-      else {
-        console.log(schedules)
-        setSchedules(null)
-      }
+    if (!error) {
+      setSchedules(schedules)
     }
+    else {
+      setSchedules(null)
+    }
+  }
     fetchSchedules()
   }, [])
 

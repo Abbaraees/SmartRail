@@ -7,8 +7,6 @@ import moment from 'moment'
 import { router } from 'expo-router'
 
 
-
-
 const ScheduleCard = ({id, origin, destination, departure_time, arrival_time, status, train_id, price} : Tables<'schedules'>) => {
   const [train, setTrain] = useState<Tables<'trains'> | null>()
   const date1 = moment(departure_time);
@@ -37,7 +35,7 @@ const ScheduleCard = ({id, origin, destination, departure_time, arrival_time, st
   }, [train_id])
 
   return (
-    <Pressable onPress={() => router.navigate(`/(passengers)/booking/${id}`)}>
+    <Pressable onPress={() => router.navigate(`/booking/${id}`)}>
       <View style={styles.container}>
         <View style={styles.firstRow}>
           <View>

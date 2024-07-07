@@ -52,11 +52,12 @@ function RootLayoutNav() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <AuthProvider>
-        <Stack>
-          <Stack.Screen name='auth' options={{headerShown: false}} />
-          <Stack.Screen name="(passengers)" options={{ headerShown: false }} />
+        <Stack screenOptions={{headerShown: false}}>
+          <Stack.Screen name='index' />
+          <Stack.Screen name='auth' />
+          <Stack.Screen name="(passengers)" />
           <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-          <Stack.Screen name="search" options={{ headerShown: false }} />
+          <Stack.Screen name="search" />
         </Stack>
       </AuthProvider>
     </ThemeProvider>
