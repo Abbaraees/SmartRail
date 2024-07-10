@@ -6,6 +6,7 @@ import Colors from '@/src/constants/Colors'
 import Checkbox from 'expo-checkbox'
 import { FontAwesome6 } from '@expo/vector-icons'
 import Button from '@/src/components/Button'
+import { router } from 'expo-router'
 
 
 const SelectPaymentScreen = () => {
@@ -69,12 +70,6 @@ const SelectPaymentScreen = () => {
     </View>
   )
 
-  const selectWallet = () => {
-    if (selectedMethod !== 'wallet') {
-      setSelectedMethod('wallet')
-    } 
-  }
-
   return (
     <SafeAreaView style={styles.container}>
       <Header title='Select Payment Method' />
@@ -86,7 +81,7 @@ const SelectPaymentScreen = () => {
         />
       </View>
       <View style={styles.footer}>
-        <Button title='Continue' onPress={() => {}} />
+        <Button title='Continue' onPress={() => {router.navigate('/booking/review-booking')}} />
 
       </View>
     </SafeAreaView>

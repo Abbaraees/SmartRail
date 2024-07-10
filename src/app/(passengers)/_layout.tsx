@@ -61,9 +61,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="ticket"
+        name="my-tickets"
         options={{
-          title: 'My Ticket',
+          title: 'My Tickets',
           tabBarIcon: ({ color }) => <TabBarIcon name="ticket" color={color} />,
         }}
       />
