@@ -26,6 +26,8 @@ const ConfirmBookingScreen = () => {
     
   }, [])
 
+  const [ticketId, setTicketId] = useState('')
+
   const generateSeat = useCallback(() => {
     const rows = "ABCD"
     const cols = "123456789"
@@ -44,7 +46,7 @@ const ConfirmBookingScreen = () => {
   const onCofirm = async () => {
     const digest = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA512, pin)
     if (digest == profile.encrypted_pin && schedule) {
-      const ticketId = generateTicketId()
+      setTicketId(generateTicketId())
       const {data, error} = await supabase
         .from('tickets')
         .insert({id: ticketId, qr_code: ticketId, schedule_id: schedule?.id, user_id: profile.id})
@@ -87,7 +89,7 @@ const ConfirmBookingScreen = () => {
             <Text style={styles.successTitle}>Ticket Booking Successful!</Text>
             <Text style={styles.successMessage}>You have successfully made a payment transaction and booked a ticket. You can access tickets through the My Ticket menu.</Text>
             <View style={styles.alertBtns}>
-              <Button title='View Transaction' onPress={() => {router.navigate('/booking/transactions/1')}}/>
+              <Button title='View Transaction' onPress={() => {router.navigate(`/(passenger)/my-tickets/transactions/${ticketId}`)}}/>
               <Button title='Back to Home' onPress={() => {router.replace('/(passengers)')}} secondary />
             </View>
           </View>

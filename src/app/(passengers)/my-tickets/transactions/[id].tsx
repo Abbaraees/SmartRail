@@ -1,14 +1,39 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Header from '@/src/components/Header'
 import Barcode from '@kichiyaki/react-native-barcode-generator'
 import ScheduleCard from '@/src/components/ScheduleCard'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import Button from '@/src/components/Button'
-import { router } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
+import { supabase } from '@/src/lib/supabase'
+import { Tables } from '@/src/types'
 
 const TransactionDetail = () => {
+  const [ticket, setTicket] = useState<Tables<'tickets'>>()
+  const [schedule, setSchedule] = useState()
+
+  const { id } = useLocalSearchParams()
+
+  if (id)
+  useEffect(() => {
+    const fetchTicket = async () => {
+      const { data, error } = await supabase
+        .from('tickets')
+        .select('*')
+        .eq('id', id)
+        .single()
+
+      console.log(data)
+
+      if (!error) {
+        setTicket(data)
+      }
+    }
+    fetchTicket()
+  }, [id])
+
   return (
     <SafeAreaView style={styles.container}>
       <Header title='Transaction Detail' />
@@ -16,7 +41,7 @@ const TransactionDetail = () => {
         <View>
           <View style={styles.barcodeHeader}>
             <Text style={{fontSize: 16, fontWeight: 'semibold'}}>Booking ID:</Text>
-            <Text style={{fontSize: 16, fontWeight: 'bold'}}>EY893GH</Text>
+            <Text style={{fontSize: 16, fontWeight: 'bold'}}>{ticket?.id}</Text>
           </View>
           <Barcode value='123' format='CODE128' maxWidth={400}/>
           <Text style={styles.barcodeNote}>You are obligated to present your e-boarding pass when boarding a train trip or during inspecting train passengers.</Text>
