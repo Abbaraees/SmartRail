@@ -1,23 +1,81 @@
 import { Alert, Image, StatusBar, StyleSheet, Text, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Header from '@/src/components/Header'
 import OTPTextView from 'react-native-otp-textinput'
 import Button from '@/src/components/Button'
 import Colors from '@/src/constants/Colors'
 import { router } from 'expo-router'
+import { useAuth } from '@/src/providers/AuthProvider'
+import * as Crypto from "expo-crypto"
+import { useBooking } from '@/src/providers/BookingProvider'
+import { supabase } from '@/src/lib/supabase'
+
+ 
+const CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
 
 const ConfirmBookingScreen = () => {
+  const generateTicketId = useCallback(() => {
+    let ticketId = ""
+    for (let index = 0; index < 8; index++) {
+      ticketId += CHARACTERS.charAt(Math.floor(Math.random() * CHARACTERS.length));
+    }
+
+    return ticketId
+    
+  }, [])
+
+  const generateSeat = useCallback(() => {
+    const rows = "ABCD"
+    const cols = "123456789"
+    const colIn = Math.floor(Math.random() * cols.length)
+    const rowIn = Math.floor(Math.random() * rows.length)
+
+    return rows.charAt(rowIn)+cols.charAt(colIn)
+
+  }, [])
+
   const [pin, setPin] = useState('')
   const [pinCorrect, setPinCorrect] = useState(false)
+  const { profile } = useAuth()
+  const { schedule, passenger, paymentMethod } = useBooking() 
 
-  const onCofirm = () => {
-    if (pin === '1234') {
-      setPinCorrect(true)
-    }else {
-      return Alert.alert("Incorrect Pin", "The PIN you entered is incorrect, please try again later!!")
+  const onCofirm = async () => {
+    const digest = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA512, pin)
+    if (digest == profile.encrypted_pin && schedule) {
+      const ticketId = generateTicketId()
+      const {data, error} = await supabase
+        .from('tickets')
+        .insert({id: ticketId, qr_code: ticketId, schedule_id: schedule?.id, user_id: profile.id})
+        .select()
+
+      if (!error) {
+        await supabase
+          .from('payments')
+          .insert({amount: schedule?.price, payment_method: paymentMethod, ticket_id: ticketId, user_id: profile.id})
+          .select()
+
+        if (passenger)
+          await supabase
+            .from('passengers')
+            .insert({
+              full_name: passenger?.full_name,
+              phone_number: passenger?.phone_number,
+              email: passenger.email,
+              ticket_id: ticketId,
+              seat: generateSeat(),
+              type: 'Adult'
+            })
+        }
+
+        setPinCorrect(true)
+    }
+    else {
+      return Alert.alert("Incorrect Pin", "Your transaction pin is incorrect please try again")
     }
   }
+
   return (
     <SafeAreaView style={styles.container}>
       {pinCorrect && <>

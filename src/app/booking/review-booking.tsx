@@ -7,8 +7,12 @@ import Colors from '@/src/constants/Colors'
 import { FontAwesome5 } from '@expo/vector-icons'
 import { Link, router } from 'expo-router'
 import Button from '@/src/components/Button'
+import { useBooking } from '@/src/providers/BookingProvider'
+import { useAuth } from '@/src/providers/AuthProvider'
 
 const ReviewBookingScreen = () => {
+  const { schedule, passenger, paymentMethod } = useBooking()
+  const { profile, session } = useAuth()
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
@@ -16,26 +20,24 @@ const ReviewBookingScreen = () => {
         <Header title='Review Summary' />
         <View style={styles.body}>
           <Text style={styles.title}>Departure Train</Text>
-          <ScheduleCard
-            origin='Kano'
-            destination='Katsina'
-            price={150}
-            train_id={1}
-            status='Available'
-          />
+          {schedule && 
+            <ScheduleCard
+              {...schedule}
+            />
+          }
           <Text style={[styles.title, {marginTop: 20}]}>Contact Details</Text>
           <View style={styles.contactDetail}>
             <View style={styles.row}>
               <Text style={styles.label}>First Name</Text>
-              <Text style={styles.value}>Muhammad Lawal</Text>
+              <Text style={styles.value}>{profile.full_name}</Text>
             </View>
             <View style={styles.row}>
               <Text style={styles.label}>Email</Text>
-              <Text style={styles.value}>abbaraees@gmail.com</Text>
+              <Text style={styles.value}>{session?.user.email}</Text>
             </View>
             <View style={styles.row}>
               <Text style={styles.label}>Phone Number</Text>
-              <Text style={styles.value}>+234 9161 8725 24</Text>
+              <Text style={styles.value}>{profile.phone_number}</Text>
             </View>
           </View>
 
@@ -47,14 +49,35 @@ const ReviewBookingScreen = () => {
             </View>
             <View style={styles.passengersEntry}>
               <Text style={{marginRight: 20}}>1</Text>
-              <Text>Muhammad Lawal</Text>
+              <Text>{passenger?.full_name}</Text>
             </View>
           </View>
 
           <Text style={styles.title}>Payment Method</Text>
           <View style={styles.paymentMethod}>
-            <FontAwesome5 name='wallet' size={50} color={Colors.light.tint} />
-            <Text style={styles.paymentMethodName}>My Wallet</Text>
+            {paymentMethod  == 'My Wallet' 
+            ? <>
+                <FontAwesome5 name='wallet' size={50} color={Colors.light.tint} />
+                <Text style={styles.paymentMethodName}>My Wallet</Text>
+              </>
+            : paymentMethod == 'Paypal'
+            ? <>
+                <FontAwesome5 name='paypal' size={50} color={Colors.light.tint} />
+                <Text style={styles.paymentMethodName}>Paypal</Text>
+              </>
+            : paymentMethod == 'Google Pay'
+            ?
+             <>
+                <FontAwesome5 name='google-pay' size={50} color={Colors.light.tint} />
+                <Text style={styles.paymentMethodName}>Google Pay</Text>
+              </>
+            :
+              <>
+                <FontAwesome5 name='apple-pay' size={50} color={Colors.light.tint} />
+                <Text style={styles.paymentMethodName}>Apple Pay</Text>
+              </>
+          }
+            
             <Pressable onPress={() => router.back()} style={{marginLeft: 'auto'}}>
               <Text style={styles.changeBtn}>Change</Text>
             </Pressable>

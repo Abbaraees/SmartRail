@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, FlatList, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, Image, FlatList, ScrollView, Alert } from 'react-native'
 import React, { useState } from 'react'
 import Header from '@/src/components/Header'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -7,10 +7,13 @@ import Checkbox from 'expo-checkbox'
 import { FontAwesome6 } from '@expo/vector-icons'
 import Button from '@/src/components/Button'
 import { router } from 'expo-router'
+import { useBooking } from '@/src/providers/BookingProvider'
 
 
 const SelectPaymentScreen = () => {
   const [selectedMethod, setSelectedMethod] = useState('')
+  const {setPaymentMethod} = useBooking()
+
   type renderPropTypes = {
     isSelected: boolean,
     name: string, 
@@ -27,13 +30,19 @@ const SelectPaymentScreen = () => {
       image: 'wallet',
       balance: 578.60,
       color: Colors.light.text,
-      onSelect: () => setSelectedMethod('wallet')
+      onSelect: () => {
+        setSelectedMethod('wallet')
+        setPaymentMethod('My Wallet')
+      }
     },
     {
       isSelected: selectedMethod == 'paypal',
       name: 'Paypal',
       image: 'paypal',
-      onSelect: () => setSelectedMethod('paypal'),
+      onSelect: () => {
+        setSelectedMethod('paypal')
+        setPaymentMethod('Paypal')
+      },
       color: '#3782D5'
     },
     {
@@ -41,14 +50,20 @@ const SelectPaymentScreen = () => {
       name: 'Google Pay',
       image: 'google-pay',
       color: '#34A853',
-      onSelect: () => setSelectedMethod('google-pay')
+      onSelect: () => {
+        setSelectedMethod('google-pay')
+        setPaymentMethod('Google Pay')
+      }
     },
     {
       isSelected: selectedMethod == 'apple-pay',
       name: 'Apple Pay',
       image: 'apple-pay',
       color: '#717171',
-      onSelect: () => setSelectedMethod('apple-pay')
+      onSelect: () => {
+        setSelectedMethod('apple-pay')
+        setPaymentMethod('Apple Pay')
+      }
     }
   ]
 
@@ -81,7 +96,12 @@ const SelectPaymentScreen = () => {
         />
       </View>
       <View style={styles.footer}>
-        <Button title='Continue' onPress={() => {router.navigate('/booking/review-booking')}} />
+        <Button title='Continue' onPress={() => {
+          if (!selectedMethod) {
+            return Alert.alert("Error", "Please select a payment method")
+          }
+          router.navigate('/booking/review-booking')
+        }} />
 
       </View>
     </SafeAreaView>

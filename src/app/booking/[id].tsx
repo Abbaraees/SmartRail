@@ -1,4 +1,4 @@
-import { ActivityIndicator, StyleSheet, Switch, Text, View } from 'react-native'
+import { ActivityIndicator, Alert, StyleSheet, Switch, Text, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import Header from '@/src/components/Header'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -11,18 +11,22 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import Button from '@/src/components/Button'
 import Colors from '@/src/constants/Colors'
+import { useBooking } from '@/src/providers/BookingProvider'
+import { useAuth } from '@/src/providers/AuthProvider'
 
 const BookingDetail = () => {
-  const [contactName, setContactName] = useState('')
-  const [contactEmail, setContactEmail] = useState('')
-  const [contactPhone, setContactPhone] = useState('')
-  const [passengerName, setPassengerName] = useState('')
-  const [passengerPhone, setPassengerPhone] = useState('')
+  const [contactName, setContactName] = useState<string>('')
+  const [contactEmail, setContactEmail] = useState<string>('')
+  const [contactPhone, setContactPhone] = useState<string>('')
+  const [passengerName, setPassengerName] = useState<string>('')
+  const [passengerPhone, setPassengerPhone] = useState<string>('')
+  const [passengerEmail, setPassengerEmail] = useState<string>('')
   const [sameAsContact, setSameAsContact] = useState(false)
 
+  const { schedule, setSchedule, isLoading, setIsLoading, setPassenger } = useBooking()
+  const { profile, session } = useAuth()
   const { id } = useLocalSearchParams()
-  const idInt = typeof id === 'string' ? parseInt(id) : parseInt(id?.[0])
-  const [trip, setTrip] = useState<Tables<'schedules'> | null>()
+  const idInt = typeof id === 'string' ? parseInt(id) : parseInt(id ? id[0] : '0')
 
   useEffect(() => {
     const fetchTrip = async () => {
@@ -33,24 +37,51 @@ const BookingDetail = () => {
         .single()
 
       if (!error) {
-        setTrip(data || null)
+        console.log(data)
+        setSchedule(data || null)
+        setIsLoading(false)
+      }
+      else {
+        setIsLoading(false)
       }
 
     }
     fetchTrip()
   }, [id])
 
+  // Fill the contact detail to the current user detail
+  useEffect(() => {
+    setContactName(typeof profile.full_name == 'string' ? profile.full_name : '')
+    setContactPhone(typeof profile.phone_number == 'string' ? profile.phone_number : '')
+    setContactEmail(typeof session?.user.email == 'string' ? session?.user.email : '')
+  }, [profile])
+
+
+  // Set the passenger detail same as the contact detail
+  // when the switch is toggled
+  useEffect(() => {
+    if (sameAsContact) {
+      setPassengerName(contactName)
+      setPassengerPhone(contactPhone)
+      setPassengerEmail(contactEmail)
+    } else {
+      setPassengerName('')
+      setPassengerPhone('')
+      setPassengerEmail('')
+    }
+  }, [sameAsContact])
+
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAwareScrollView>
         <Header title='Booking Details' />
         <View style={styles.body}>
-          { trip === undefined 
+          { isLoading 
           ? <ActivityIndicator />
-          : trip === null
+          : schedule === null
           ? <Text>Failed to fetch Trip</Text>
           : <>
-            <ScheduleCard {...trip} />
+            <ScheduleCard {...schedule} />
             <Text style={styles.heading}>Contact Details</Text>
             <View style={[styles.section, styles.contactDetail]}>
               <InputField 
@@ -100,8 +131,21 @@ const BookingDetail = () => {
                 placeholder='Enter Passenger Phone Number' icon='phone' 
                 keyboardType='phone-pad'
                 />
+                <InputField 
+                value={passengerEmail}
+                onValueChange={setPassengerEmail}
+                label='Email'
+                placeholder='Enter Passenger Email Address' icon='mail' 
+                keyboardType='email-address'
+                />
             </View>
-            <Button title='Continue' onPress={() => {router.navigate('/booking/select-payment')}} />
+            <Button title='Continue' onPress={() => {
+              if (!passengerName) {
+                return Alert.alert("Please enter the passenger name")
+              }
+              setPassenger({full_name: passengerName, email: passengerEmail, phone_number: passengerPhone})
+              router.navigate('/booking/select-payment')
+            }} />
           </>
           }
         </View>
@@ -127,7 +171,7 @@ const styles = StyleSheet.create({
     height: 270
   },
   passengerDetail: {
-    height: 320,
+    height: 420,
     marginBottom: 20
   },
   heading: {
