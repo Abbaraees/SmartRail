@@ -9,10 +9,13 @@ import Button from '@/src/components/Button'
 import { router, useLocalSearchParams } from 'expo-router'
 import { supabase } from '@/src/lib/supabase'
 import { Tables } from '@/src/types'
+import dayjs from 'dayjs'
 
 const TransactionDetail = () => {
   const [ticket, setTicket] = useState<Tables<'tickets'>>()
-  const [schedule, setSchedule] = useState()
+  const [schedule, setSchedule] = useState<Tables<'schedules'> | null>()
+  const [passengers, setPassengers] = useState<Tables<'passengers'>[] | null>()
+  const [payment, setPayment] = useState<Tables<'payments'> | null>()
 
   const { id } = useLocalSearchParams()
 
@@ -24,15 +27,42 @@ const TransactionDetail = () => {
         .select('*')
         .eq('id', id)
         .single()
-
-      console.log(data)
-
       if (!error) {
         setTicket(data)
+        const { data: schedule, error: scheduleError } = await supabase
+          .from('schedules')
+          .select('*')
+          .eq('id', data.schedule_id ? data.schedule_id : -1)
+          .single()
+
+          console.log(schedule)
+        if (!scheduleError) {
+          setSchedule(schedule)
+        }
+
+        const { data: passengers, error: passengersError } = await supabase
+          .from('passengers')
+          .select('*')
+          .eq('ticket_id', data.id ? data.id : -1)
+
+        if (!passengersError) {
+          setPassengers(passengers)
+        }
+
+        const { data: payment, error: paymentError } = await supabase
+          .from('payments')
+          .select('*')
+          .eq('ticket_id', data.id ? data.id : -1)
+          .single()
+
+        if (!paymentError) {
+          setPayment(payment)
+        }
       }
     }
     fetchTicket()
   }, [id])
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -49,18 +79,14 @@ const TransactionDetail = () => {
         
         <Text style={styles.sectionTitle}>Trip Details</Text>
         <ScheduleCard
-            origin='Kano'
-            destination='Katsina'
-            price={150}
-            train_id={1}
-            status='Available'
+            {...schedule}
           />
 
         <Text style={styles.sectionTitle}>Payment Details</Text>
         <View style={styles.section}>
           <View style={styles.row}>
             <Text style={styles.label}>Price</Text>
-            <Text style={styles.value}>$40</Text>
+            <Text style={styles.value}>${schedule?.price}</Text>
           </View>
           <View style={[styles.row, styles.tax]}>
             <Text style={styles.label}>Tax</Text>
@@ -68,7 +94,7 @@ const TransactionDetail = () => {
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Total</Text>
-            <Text style={styles.value}>$42</Text>
+            <Text style={styles.value}>${schedule?.price + 2}</Text>
           </View>
         </View>
 
@@ -79,15 +105,15 @@ const TransactionDetail = () => {
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Booking ID</Text>
-            <Text style={styles.value}>EY893GH</Text>
+            <Text style={styles.value}>{ticket?.id}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Transaction ID</Text>
-            <Text style={styles.value}>2023122908000930</Text>
+            <Text style={styles.value}>{dayjs(payment?.payment_date).format("YYYYMMDDHHmmssSSS")}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Payment Method</Text>
-            <Text style={styles.value}>My Wallet</Text>
+            <Text style={styles.value}>{payment?.payment_method}</Text>
           </View>
         </View>
 
@@ -97,23 +123,30 @@ const TransactionDetail = () => {
             <MaterialCommunityIcons name='seat-passenger' size={32} color={'black'} />
             <Text style={styles.passengersHeadingText}>Passenger</Text>
           </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Full Name</Text>
-            <Text style={styles.value}>Muhammad Lawal</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Phone Number</Text>
-            <Text style={styles.value}>+23481271637</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Passenger Type</Text>
-            <Text style={styles.value}>Adult</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Seat</Text>
-            <Text style={styles.value}>Carriage 2 1 / B2</Text>
-          </View>
-          <Button title='Show E-Ticket' onPress={() => {router.replace('/(passengers)/my-tickets/1')}} />
+          {passengers && 
+          <>
+            {passengers.map(passenger => 
+            <View key={passenger.id}>
+              <View style={styles.row}>
+                <Text style={styles.label}>Full Name</Text>
+                <Text style={styles.value}>{passenger.full_name}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Phone Number</Text>
+                <Text style={styles.value}>{passenger.phone_number}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Passenger Type</Text>
+                <Text style={styles.value}>{passenger.type}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Seat</Text>
+                <Text style={styles.value}>{passenger.seat}</Text>
+              </View>
+            </View>)}
+          </>}
+            
+          <Button title='Show E-Ticket' onPress={() => {router.replace(`/(passengers)/my-tickets/${ticket?.id}`)}} />
         </View>
 
       </ScrollView>

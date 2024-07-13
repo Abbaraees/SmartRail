@@ -70,6 +70,9 @@ const ConfirmBookingScreen = () => {
               type: 'Adult'
             })
         }
+        else {
+          return Alert.alert("Transaction Falied", "Transaction fail, please try again")
+        }
 
         setPinCorrect(true)
     }
