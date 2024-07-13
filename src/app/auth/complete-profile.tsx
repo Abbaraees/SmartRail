@@ -1,8 +1,8 @@
 import { Pressable, StyleSheet, Text, View, Image, Alert } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { styles } from './signup'
-import { router } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
 import { AntDesign, Ionicons } from '@expo/vector-icons'
 import InputField from '@/src/components/InputField'
 import dayjs from 'dayjs'
@@ -16,15 +16,32 @@ import Colors from '@/src/constants/Colors'
 import { useAuth } from '@/src/providers/AuthProvider'
 import { supabase } from '@/src/lib/supabase'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import Header from '@/src/components/Header'
 
 
 const CompleteProfileScreen = () => {
-  const [fullName, setFullName] = useState('')
-  const [nationalId, setNationalId] = useState('')
-  const [phoneNumber, setPhoneNumber] = useState('')
+  const [fullName, setFullName] = useState<string | null>('')
+  const [nationalId, setNationalId] = useState<string | null>('')
+  const [phoneNumber, setPhoneNumber] = useState<string | null>('')
   const [dob, setDob] = useState<Date|undefined>(new Date())
   const [image, setImage] = useState<string | undefined>()
   const { session } = useAuth()
+  const { action } = useLocalSearchParams()
+  const isUpdating = typeof action == 'string' ? action === 'update' : action[0] === 'update'
+  const { profile, setProfile } = useAuth()
+
+  useEffect(() => {
+    if (isUpdating) {
+      const { data: {publicUrl} } = supabase.storage
+        .from('avatars')
+    .getPublicUrl(profile.avatar_url ? profile.avatar_url : 'avatar.url')
+      setFullName(profile?.full_name)
+      setNationalId(profile.national_id)
+      setPhoneNumber(profile.phone_number)
+      setDob(new Date(profile.date_of_birth))
+      setImage(publicUrl)
+    }
+  }, [isUpdating])
 
   const onChange = (event: DateTimePickerEvent, selectedDate: Date | undefined)=> {
     const currentDate = selectedDate;
@@ -88,6 +105,15 @@ const CompleteProfileScreen = () => {
 
       if (error) {
         return Alert.alert("Failed", error.message)
+      } else if (isUpdating) {
+        const { data } = await supabase
+          .from('profiles')
+          .select("*")
+          .eq('id', profile.id)
+          .single()
+
+        setProfile(data)
+        router.back()
       } else {
         router.navigate('/auth/create-pin')    
       }
@@ -96,18 +122,25 @@ const CompleteProfileScreen = () => {
   return (
     <SafeAreaView style={styles2.container}>
       <KeyboardAwareScrollView>
-        <View style={styles.header}>
-          <Pressable onPress={() => router.back()}>
-            <AntDesign name='arrowleft' color='white' size={24} />
-          </Pressable>
-          <View style={[styles.progressContainer]}>
-            <View style={[styles.progressIndicator, styles2.progressIndicator]}></View>
+        {
+          isUpdating 
+          ? <Header title='Profile Info' />
+          :
+          <View style={styles.header}>
+            <Pressable onPress={() => router.back()}>
+              <AntDesign name='arrowleft' color='white' size={24} />
+            </Pressable>
+            <View style={[styles.progressContainer]}>
+              <View style={[styles.progressIndicator, styles2.progressIndicator]}></View>
+            </View>
           </View>
-        </View>
+        }
           <View style={styles.body}>
-            <Text style={styles.welcomeText}>Complete your profile 📋</Text>
-            <Text style={styles.note}>Please enter your profile. Don't worry, only you can see your personal data. No one else will be able to see it.</Text>
-          
+            {!isUpdating && <>            
+              <Text style={styles.welcomeText}>Complete your profile 📋</Text>
+              <Text style={styles.note}>Please enter your profile. Don't worry, only you can see your personal data. No one else will be able to see it.</Text>
+            
+            </>}
           <Pressable style={styles2.imagePickerContainer} onPress={pickImage}>
             <Image 
               source={image === undefined 
@@ -116,7 +149,7 @@ const CompleteProfileScreen = () => {
               }
               style={styles2.userAvatar}
             />
-            <Ionicons name='pencil' size={20} color={Colors.light.tint} style={{fontWeight: 'bold', marginLeft: -10}}/>
+            <Ionicons name='pencil' size={18} color='white' style={styles2.pencilIcon}/>
           </Pressable>
           <InputField
             value={fullName}
@@ -161,7 +194,7 @@ const CompleteProfileScreen = () => {
               <Ionicons name='calendar' color='gray' size={24} />
             </Pressable>
           </View>
-          <Button title='Continue' onPress={onSubmit}/>
+          <Button title={isUpdating ? 'Update' : 'Continue'} onPress={onSubmit}/>
         </View>
       </KeyboardAwareScrollView>
     </SafeAreaView>
@@ -188,13 +221,20 @@ const styles2 = StyleSheet.create({
   imagePickerContainer: {
     justifyContent: 'center',
     alignItems: 'flex-end',
-    flexDirection: 'row'
+    flexDirection: 'row',
+    marginTop: 30
   },
   picker: {
     borderBottomWidth: 1,
     borderBottomColor: 'gray',
     marginVertical: 10,
 
+  },
+  pencilIcon: {
+    marginLeft: -24,
+    backgroundColor: Colors.light.tint,
+    padding:4,
+    borderRadius: 5
   },
   dropdownLabel: {
     fontSize: 16,
