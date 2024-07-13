@@ -89,7 +89,7 @@ const ConfirmBookingScreen = () => {
             <Text style={styles.successTitle}>Ticket Booking Successful!</Text>
             <Text style={styles.successMessage}>You have successfully made a payment transaction and booked a ticket. You can access tickets through the My Ticket menu.</Text>
             <View style={styles.alertBtns}>
-              <Button title='View Transaction' onPress={() => {router.navigate(`/(passenger)/my-tickets/transactions/${ticketId}`)}}/>
+              <Button title='View Transaction' onPress={() => {router.navigate(`/(passengers)/my-tickets/transactions/${ticketId}`)}}/>
               <Button title='Back to Home' onPress={() => {router.replace('/(passengers)')}} secondary />
             </View>
           </View>
