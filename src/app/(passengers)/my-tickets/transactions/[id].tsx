@@ -41,7 +41,7 @@ const TransactionDetail = () => {
         <View>
           <View style={styles.barcodeHeader}>
             <Text style={{fontSize: 16, fontWeight: 'semibold'}}>Booking ID:</Text>
-            <Text style={{fontSize: 16, fontWeight: 'bold'}}>{ticket?.id}</Text>
+            <Text style={{fontSize: 16, fontWeight: 'bold'}}>{id}</Text>
           </View>
           <Barcode value='123' format='CODE128' maxWidth={400}/>
           <Text style={styles.barcodeNote}>You are obligated to present your e-boarding pass when boarding a train trip or during inspecting train passengers.</Text>
