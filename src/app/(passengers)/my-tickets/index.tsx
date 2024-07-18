@@ -1,30 +1,34 @@
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Header from '@/src/components/Header'
 import { Tables } from '@/src/database.types'
 import { useAuth } from '@/src/providers/AuthProvider'
 import { supabase } from '@/src/lib/supabase'
 import TicketCard from '@/src/components/TicketCard'
+import { useFocusEffect } from 'expo-router'
 
 const MyTickets = () => {
   const [tickets, setTickets] = useState<Tables<'tickets'>[]>()
-  const [schedules, setSchedules] = useState<Tables<'schedules'>[]>()
   const { profile } = useAuth()
 
-  useEffect(() => {
-    const fetchTickets = async () => {
-      const {data, error} = await supabase
-        .from('tickets')
-        .select('*')
-        .eq('user_id', profile.id)
+  const fetchTickets = async () => {
+    const {data, error} = await supabase
+      .from('tickets')
+      .select('*')
+      .eq('user_id', profile.id)
 
-      if (!error) {
-        setTickets(data)
-      }
+    if (!error) {
+      setTickets(data)
     }
-    fetchTickets()
-  }, [])
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchTickets()
+    }, [profile])
+  )
+  
 
 
   return (

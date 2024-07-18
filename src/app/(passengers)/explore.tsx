@@ -2,18 +2,17 @@ import { ActivityIndicator, FlatList, StyleSheet } from 'react-native';
 
 import { Text, View } from '@/components/Themed';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/src/lib/supabase';
 import { Tables } from '@/src/types';
 import ScheduleCard from '@/src/components/ScheduleCard';
 import Header from '@/src/components/Header';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function TabTwoScreen() {
   const [schedules, setSchedules] = useState<Tables<'schedules'>[] | null>()
 
-  useEffect(() => {
-    const fetchSchedules = async () => {
-      
+  const fetchSchedules = async () => {
     let { data: schedules, error } = await supabase
     .from('schedules')
     .select('*')
@@ -25,8 +24,13 @@ export default function TabTwoScreen() {
       setSchedules(null)
     }
   }
-  fetchSchedules()
-  }, [])
+
+  useFocusEffect(
+    useCallback(() =>{
+      fetchSchedules()
+    }, [])
+  )
+
 
   return (
     <SafeAreaView style={styles.container}>
