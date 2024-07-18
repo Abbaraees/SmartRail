@@ -55,7 +55,8 @@
     "react-native-url-polyfill": "^2.0.0",
     "react-native-web": "~0.19.10",
     "react-qr-code": "^2.0.15",
-    "supabase": "^1.183.5"
+    "supabase": "^1.183.5",
+    "expo-updates": "~0.25.19"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
