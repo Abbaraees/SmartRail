@@ -9,24 +9,30 @@ import Checkbox from 'expo-checkbox'
 import Button from '@/src/components/Button'
 import { supabase } from '@/src/lib/supabase'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import Loading from '@/src/components/Loading'
 
 const SigninScreen = () => {
   const [checked, setChecked] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   const onSubmit = async () => {
+    setIsLoading(true)
     const {data, error} = await supabase.auth.signInWithPassword({email, password})
     if (error) {
+      setIsLoading(false)
       return Alert.alert("Login failed", error.message)
     } 
     else {
+      setIsLoading(false)
       router.replace('/(passengers)')
     }
   }
 
   return ( 
     <SafeAreaView style={styles.container}>
+      {isLoading && <Loading />}
       <KeyboardAwareScrollView contentContainerStyle={{justifyContent: 'flex-start'}}>
         <View style={styles.header}>
           <Pressable onPress={() => router.back()}>
@@ -73,6 +79,7 @@ const SigninScreen = () => {
     </SafeAreaView>
   )
 }
+
 
 export const styles = StyleSheet.create({
   container: {
