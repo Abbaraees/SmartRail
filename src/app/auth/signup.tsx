@@ -9,24 +9,28 @@ import Checkbox from 'expo-checkbox'
 import Button from '@/src/components/Button'
 import { supabase } from '@/src/lib/supabase'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import Loading from '@/src/components/Loading'
 
 const SignUpScreen = () => {
   const [checked, setChecked] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   const onSubmit = async () => {
     if (!checked) {
       return Alert.alert("Signup Failed", "You have to accept our Terms and Policies")
     }
     else {
+      setIsLoading(true)
       const {data, error} = await supabase.auth.signUp({email, password})
       if (!error) {
         const {error} = await supabase.auth.signInWithPassword({email, password})
         if (!error)
-          router.replace('/auth/complete-profile')
+          router.replace('/auth/complete-profile?action=signup')
       }
       else {
+        setIsLoading(false)
         return Alert.alert('Auth Failed', error.message)
 
       }
@@ -35,6 +39,7 @@ const SignUpScreen = () => {
   return ( 
     <SafeAreaView style={styles.container} > 
       <KeyboardAwareScrollView contentContainerStyle={{ justifyContent: 'center'}}>
+        {isLoading && <Loading />}
         <View style={styles.header}>
           <Pressable onPress={() => router.back()}>
             <AntDesign name='arrowleft' color='white' size={24} />

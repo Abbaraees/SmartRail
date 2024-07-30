@@ -17,6 +17,7 @@ import { useAuth } from '@/src/providers/AuthProvider'
 import { supabase } from '@/src/lib/supabase'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import Header from '@/src/components/Header'
+import Loading from '@/src/components/Loading'
 
 
 const CompleteProfileScreen = () => {
@@ -29,6 +30,7 @@ const CompleteProfileScreen = () => {
   const { action } = useLocalSearchParams()
   const isUpdating = typeof action == 'string' ? action === 'update' : action[0] === 'update'
   const { profile, setProfile } = useAuth()
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     if (isUpdating) {
@@ -90,6 +92,7 @@ const CompleteProfileScreen = () => {
 
   const onSubmit = async () => {
     const imagePath = await uploadImage()
+    setIsLoading(true)
   
     const { data, error } = await supabase
       .from("profiles")
@@ -104,6 +107,7 @@ const CompleteProfileScreen = () => {
       .single()
 
       if (error) {
+        setIsLoading(false)
         return Alert.alert("Failed", error.message)
       } else if (isUpdating) {
         const { data } = await supabase
@@ -121,6 +125,7 @@ const CompleteProfileScreen = () => {
 
   return (
     <SafeAreaView style={styles2.container}>
+      {isLoading && <Loading />}
       <KeyboardAwareScrollView>
         {
           isUpdating 

@@ -23,7 +23,6 @@ const styles = StyleSheet.create({
   blur: {
     height: '100%',
     position: 'absolute',
-    marginTop: StatusBar.currentHeight,
     top: 0,
     left: 0,
     flex: 1,
