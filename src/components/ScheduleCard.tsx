@@ -44,7 +44,7 @@ const ScheduleCard = ({id, origin, destination, departure_time, arrival_time, st
           </View>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <Text style={styles.status}>{status}</Text>
-            <Text style={styles.price}>${price}</Text>
+            <Text style={styles.price}>₦{price}</Text>
           </View>
         </View>
         <View style={styles.secondRow}>

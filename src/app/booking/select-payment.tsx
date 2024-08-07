@@ -75,7 +75,7 @@ const SelectPaymentScreen = () => {
         <Text style={styles.paymentName}>{name}</Text>
       </View>
       <View style={{flexDirection: 'row', alignItems: 'center'}}>
-        {balance && <Text style={styles.balance}>${balance}</Text>}
+        {balance && <Text style={styles.balance}>₦{balance}</Text>}
         <Checkbox 
           value={isSelected}
           onValueChange={onSelect}
